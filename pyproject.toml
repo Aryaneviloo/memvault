@@ -39,6 +39,7 @@ postgres = [
 
 dev = [
     "pytest>=8.0",
+    "pytest-benchmark>=4.0.0",
     "pytest-cov",
     "ruff",
     "mypy",
@@ -54,7 +55,7 @@ select = ["E", "F", "I", "UP", "B"]
 ignore = ["B008"]
 
 [ tool.pytest.ini_options ]
-testpaths = ["tests"]
+testpaths = ["tests", "benchmarks"]
 
 [ tool.mypy ]
 python_version = "3.10"
