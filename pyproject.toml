@@ -37,6 +37,10 @@ postgres = [
     "psycopg2-binary>=2.9",
 ]
 
+langchain = ["langchain-core>=0.3"]
+
+llamaindex = ["llama-index-core>=0.10"]
+
 dev = [
     "pytest>=8.0",
     "pytest-cov",
