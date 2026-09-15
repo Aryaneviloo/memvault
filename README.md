@@ -288,8 +288,6 @@ docs/                   # Architecture, getting started, benchmarks
 ```
 
 
-See [docs/roadmap.md](docs/roadmap.md) for the full roadmap with details.
-
 ## Contributing
 
 Contributions are welcome — bug fixes, new backends, embedding providers,
