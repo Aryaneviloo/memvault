@@ -35,9 +35,9 @@ class MemVaultChatHistory(BaseChatMessageHistory):
             namespace: str = "default",
             db_path: str = "memories.db",
     ) -> None:
-        self.user_id = user_id,
-        self.agent_id = agent_id,
-        self.namespace = namespace,
+        self.user_id = user_id
+        self.agent_id = agent_id
+        self.namespace = namespace
         self._mc = MemVault(db_path = db_path)
 
     @property
