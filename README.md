@@ -287,24 +287,6 @@ benchmarks/             # Performance benchmark suite
 docs/                   # Architecture, getting started, benchmarks
 ```
 
-## Roadmap
-
-- [x] Core memory engine (scoring, retrieval, consolidation, decay)
-- [x] SQLite and PostgreSQL backends
-- [x] BGE-small local embeddings
-- [x] REST API (FastAPI) + CLI (Typer)
-- [x] Docker support
-- [x] MCP server (Claude Desktop, Cursor, VS Code)
-- [x] Auto-ingestion (rule-based + Anthropic extractor)
-- [x] Performance benchmarks
-- [x] Published on PyPI
-- [ ] Async storage backends
-- [ ] OpenAI / Cohere embedding providers
-- [ ] Semantic ingestion extractor (BGE-based)
-- [ ] pgvector support
-- [ ] LangChain / LlamaIndex integration
-- [ ] TypeScript SDK
-- [ ] Web dashboard
 
 See [docs/roadmap.md](docs/roadmap.md) for the full roadmap with details.
 
