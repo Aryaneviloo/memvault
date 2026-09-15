@@ -1,17 +1,14 @@
 """Tests for Langchain adapter"""
 
-import pytest
 
-from unittest.mock import patch, MagicMock
+from datetime import datetime, timezone
+from unittest.mock import MagicMock, patch
 
-from memvault.integrations.langchain import MemVaultRetriever, MemVaultChatHistory
+from langchain_core.messages import AIMessage, HumanMessage
+
 from memvault.core.models import MemoryItem, MemoryType
 from memvault.core.retrieval import RetrievalResult
-from datetime import datetime, timezone
-
-
-from langchain_core.messages import HumanMessage, AIMessage
-
+from memvault.integrations.langchain import MemVaultChatHistory, MemVaultRetriever
 
 NOW = datetime(2026, 1, 1, tzinfo=timezone.utc)
 
@@ -74,3 +71,4 @@ def test_clear_removes_messages(tmp_path):
 
 def test_messages_empty_on_fresh_history(tmp_path):
     h = MemVaultChatHistory(user_id="aryan", db_path=str(tmp_path/ "test.db"))
+    assert h.messages == []

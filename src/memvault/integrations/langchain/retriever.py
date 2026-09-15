@@ -16,8 +16,8 @@ from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 
-from memvault.memvault import MemVault
 from memvault.core.models import MemoryType
+from memvault.memvault import MemVault
 
 
 class MemVaultRetriever(BaseRetriever):
