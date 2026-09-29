@@ -10,3 +10,4 @@ venv/
 .coverage
 htmlcov/
 dist/
+docker-compose.yml/
