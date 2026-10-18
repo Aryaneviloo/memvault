@@ -186,7 +186,10 @@ class SQLiteStorage(StorageBackend):
         rows = self._conn.execute(sql, params).fetchall()
         return [self._deserialize(row) for row in rows]
 
-    def list_namespaces(self, user_id, agent_id: str | None = None) -> list[str]:
+    def list_namespaces(self, 
+                        user_id: str,
+                        agent_id: str | None = None
+                        ) -> list[str]:
         sql = """
                 SELECT DISTINCT namespace FROM memories
                 WHERE deleted_at IS NULL

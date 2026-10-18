@@ -38,6 +38,7 @@ services:
             test: ["CMD-SHELL", "pg_isready -U memvault"]
             interval: 5s
             timeout: 5s
+            
             retries: 5
 
 
