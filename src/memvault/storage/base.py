@@ -55,6 +55,17 @@ class StorageBackend(ABC):
         raise NotImplementedError
 
 
+    @abstractmethod
+    def list_namespaces(
+        self,
+        user_id: str,
+        agent_id: str | None = None,
+
+    ) -> list[str]:
+        """Return the distinct namespaces that contain live memories"""
+        raise NotImplementedError
+
+
 class EmbeddingStorageWrapper:
     """
     Wraps any Storage Backend to automactically generate embeddings on insert and update
@@ -104,4 +115,15 @@ class EmbeddingStorageWrapper:
             agent_id=agent_id,
             namespace=namespace,
             limit=limit,
+        )
+
+    def list_namespaces(
+            self,
+            user_id: str,
+            agent_id: str | None = None,
+
+    ) -> list[str]:
+        return self._backend.list_namespaces(
+            user_id=user_id,
+            agent_id=agent_id,
         )

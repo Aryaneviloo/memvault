@@ -68,3 +68,18 @@ class InMemoryStorage(StorageBackend):
         ]
         results.sort(key=lambda i: i.created_at, reverse=True)
         return results[:limit]
+
+    def list_namespaces(self, 
+                        user_id: str,
+                        agent_id: str | None = None
+                        ) -> list[str]:
+
+        namespaces = {
+            item.namespace
+            for item in self._items.values()
+            if item.deleted_at is None
+            and item.user_id == user_id
+            and( agent_id is None or item.agent_id == agent_id)
+        }
+
+        return sorted(namespaces)

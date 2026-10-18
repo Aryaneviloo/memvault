@@ -185,3 +185,23 @@ class SQLiteStorage(StorageBackend):
 
         rows = self._conn.execute(sql, params).fetchall()
         return [self._deserialize(row) for row in rows]
+
+    def list_namespaces(self, user_id, agent_id: str | None = None) -> list[str]:
+        sql = """
+                SELECT DISTINCT namespace FROM memories
+                WHERE deleted_at IS NULL
+                    AND user_id = ?
+            """
+
+        params: list = [user_id]
+
+        if agent_id is not None:
+            sql += " AND agent_id = ?"
+            params.append(agent_id)
+
+        sql += " ORDER by namespace"
+
+        rows = self._conn.execute(sql, params).fetchall()
+        return [row[0] for row in rows]
+
+    
