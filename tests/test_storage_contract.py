@@ -181,6 +181,48 @@ def test_list_recent_filters_by_agent_id(store):
     assert len(results) == 1
     assert results[0].agent_id == "agent-A"
 
+def _mem(user_id = "u",
+         agent_id = "a",
+         namespace = "default",
+         content = "X"):
+    return MemoryItem(
+        user_id=user_id,
+        agent_id=agent_id,
+        namespace=namespace,
+        type = MemoryType.WORKING,
+        content = content,
+    )
+
+def test_list_namespaces_sorted_and_deduped(store):
+    store.insert(_mem(namespace="zeta"))
+    store.insert(_mem(namespace="alpha", content ="1"))
+    store.insert(_mem(namespace="alpha", content="2"))
+
+    assert store.list_namespaces(user_id="u") == ["alpha", "zeta"]
+
+
+def test_list_namespaces_isolated_by_user(store):
+    store.insert(_mem(user_id="u", namespace="mine"))
+    store.insert(_mem(user_id = "other", namespace="theirs"))
+
+    assert store.list_namespaces(user_id="u") == ["mine"]
+
+def test_list_namespaces_filters_by_agent_id(store):
+    store.insert(_mem(agent_id="agent-A", namespace="chat-1"))
+    store.insert(_mem(agent_id="agent-B", namespace="chat-2"))
+
+    assert store.list_namespaces(user_id="u", agent_id="agent-A") == ["chat-1"]
+    assert store.list_namespaces(user_id="u") == ["chat-1", "chat-2"]
+
+
+def test_list_namespaces_ignores_soft_deleted(store):
+    gone = store.insert(_mem(namespace="gone"))
+    store.insert(_mem(namespace="kept"))
+    store.delete(gone.id)  # soft delete
+
+    assert store.list_namespaces(user_id="u") == ["kept"]
+
+    
 
 def test_hard_delete_permanently_removes_item(store, sample_item):
     store.insert(sample_item)
