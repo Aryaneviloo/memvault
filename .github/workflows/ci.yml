@@ -19,7 +19,7 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install -e ".[local,dev]"
+        run: pip install -e ".[local,dev,langchain,llamaindex]"
 
       - name: Lint with ruff
         run: ruff check .
