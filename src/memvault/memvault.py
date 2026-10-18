@@ -191,6 +191,19 @@ class MemVault:
             limit=limit,
         )
 
+
+    def list_namespaces(
+            self,
+            user_id: str,
+            *,
+            agent_id: str | None = None,
+    ) -> list[str]:
+        """Return the distinct namespaces that held live memories for a user"""
+        return self._backend.list_namespaces(
+            user_id=user_id,
+            agent_id=agent_id,
+        )
+
     def consolidate(
         self,
         user_id: str,
