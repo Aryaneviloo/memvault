@@ -183,13 +183,19 @@ class MemVault:
         namespace: str = "default",
         limit: int = 20,
     ) -> list[MemoryItem]:
-        """Return the most recently created memories for a user."""
-        return self._backend.list_recent(
+        """
+        Return the most recently created/updated memories for a user.
+
+        Delegates to the storage backend's list_recent.
+        """
+        return self._store.list_recent(
             user_id=user_id,
             agent_id=agent_id,
             namespace=namespace,
             limit=limit,
         )
+
+
 
 
     def list_namespaces(

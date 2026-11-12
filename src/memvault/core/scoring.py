@@ -38,7 +38,7 @@ def importance_score(item: MemoryItem) -> float:
 
 def frequency_score(item: MemoryItem, *, saturation: float = 10.0) -> float:
     """
-    core how ofetn the memory was revisited
+    count how often the memory was revisited
     Returns a value in (0, 1], approaches 1 as frequency count increases
     """
     return item.access_count / (item.access_count + saturation)

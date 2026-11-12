@@ -57,57 +57,57 @@ class AnthropicExtractor(BaseExtractor):
                 "or pass api_key= to AnthropicExtractor()."
             )
 
-        def extract(self,
-                    messages: list[dict]
-                    )-> list[ExtractedFact]:
+    def extract(self,
+                messages: list[dict]
+                )-> list[ExtractedFact]:
 
-            """Extract facts using claude haiku"""
+        """Extract facts using claude haiku"""
 
-            try: 
-                import anthropic
-            except ImportError as err:
-                raise ImportError(
-                    "amthropic package required, install with pip install anthropic"
-                ) from err
+        try:
+            import anthropic
+        except ImportError as err:
+            raise ImportError(
+                "anthropic package required, install with pip install anthropic"
+            ) from err
 
-            client = anthropic.Anthropic(api_key=self.api_key)
+        client = anthropic.Anthropic(api_key=self.api_key)
 
-            conversation_text = "\n".join(
-                f"{m.get('role', 'user').upper()}: {m.get('content', '')}"
-                for m in messages
-                if m.get("content")
-            )
+        conversation_text = "\n".join(
+            f"{m.get('role', 'user').upper()}: {m.get('content', '')}"
+            for m in messages
+            if m.get("content")
+        )
 
-            response = client.messages.create(
-                model = self.model,
-                max_tokens = 1024,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"{EXTRACTION_PROMPT}\n\nConversation:\n{conversation_text}",
-                    }
-                ],
-            )
+        response = client.messages.create(
+            model = self.model,
+            max_tokens = 1024,
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"{EXTRACTION_PROMPT}\n\nConversation:\n{conversation_text}",
+                }
+            ],
+        )
 
-            raw = response.content[0].text.strip()
+        raw = response.content[0].text.strip()
 
-            try: 
-                facts_data = json.loads(raw)
-            except json.JSONDecodeError: #Model returns other tahn json
-                return []
+        try:
+            facts_data = json.loads(raw)
+        except json.JSONDecodeError: #Model returns other tahn json
+            return []
 
-            facts = []
-            for item in facts_data[: self.max_facts]:
-                try:
-                    facts.append(
-                        ExtractedFact(
-                            content=item["content"],
-                            memory_type=item.get("memory_type", "semantic"),
-                            importance=float(item.get("importance", 0.6)),
-                            tags=["auto-ingested", "anthropic"],
-                        )
+        facts = []
+        for item in facts_data[: self.max_facts]:
+            try:
+                facts.append(
+                    ExtractedFact(
+                        content=item["content"],
+                        memory_type=item.get("memory_type", "semantic"),
+                        importance=float(item.get("importance", 0.6)),
+                        tags=["auto-ingested", "anthropic"],
                     )
-                except (KeyError, ValueError, TypeError):
-                    continue
+                )
+            except (KeyError, ValueError, TypeError):
+                continue
 
-            return facts
+        return facts

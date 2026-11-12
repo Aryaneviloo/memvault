@@ -33,7 +33,7 @@ class RetrievalConfig:
 def cosine_similarity(a: list[float], b: list[float]) -> float:
     """
     Dot Product of two normalized vectors = cosine similarity
-    Both vectors must already be L2 normalized (guranteed by LocalEmbedder)
+    Both vectors must already be L2 normalized (guaranteed by LocalEmbedder)
     """
 
     return sum(x * y for x, y in zip(a, b, strict=False))
