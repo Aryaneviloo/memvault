@@ -226,6 +226,9 @@ mc.ingest(messages, user_id="alice")
 # LLM-powered: higher quality, requires an API key
 from memvault.ingestion.anthropic_extractor import AnthropicExtractor
 mc.ingest(messages, user_id="alice", extractor=AnthropicExtractor())
+
+from memvault import OpenAIExtractor
+mc.ingest(messages, user_id="alice", extractor=OpenAIExtractor())
 ```
 
 <details>

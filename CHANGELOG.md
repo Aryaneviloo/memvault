@@ -2,6 +2,21 @@
 
 All notable changes to MemVault are documented here.
 
+## [Unreleased]
+
+### Fixed
+- `api/app.py`: `app = create_app()` was missing `()`, causing `uvicorn` to receive a function object instead of a FastAPI instance (REST API would not start)
+- `ingestion/anthropic_extractor.py`: `extract()` was nested inside `__init__` (indentation bug), so calling `.extract()` raised `AttributeError`
+- `ingestion/openai_extractor.py`: was an empty file; implemented `OpenAIExtractor(BaseExtractor)` and exported it from the top-level `memvault` package
+- `memvault.py`: added missing `MemVault.recent()` method used by LangChain history adapter and examples
+- `mcp_server/server.py`: `search_memories` no longer reinforces and updates every returned memory (read operation was mutating state)
+- `storage/sqlite.py`: added `PRAGMA journal_mode=WAL` and `busy_timeout=30000` to fix "database is locked" on concurrent writes
+- `storage/base.py`: `EmbeddingStorageWrapper.update()` skips re-embedding when content is unchanged (avoids wasteful model reloads on `reinforce()`/`PATCH`)
+- `core/retrieval.py`: `recency_bias` field on `MemoryQuery`/`SearchRequest` now actually influences ranking (was previously ignored)
+
+### Changed
+- `__init__.py`: version aligned to `0.3.0` to match `pyproject.toml`
+
 ## [0.2.0] — 2026
 
 ### Added
