@@ -34,7 +34,9 @@ class SQLiteStorage(StorageBackend):
     """SQLit-backend storage adapter"""
 
     def __init__(self, db_path: str = ":memory:") -> None:
-        self._conn = sqlite3.connect(db_path, check_same_thread=False)
+        self._conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30.0)
+        self._conn.execute("PRAGMA journal_mode=WAL")
+        self._conn.execute("PRAGMA busy_timeout=30000")
         self._conn.execute(SCHEMA)
         self._conn.commit()
 

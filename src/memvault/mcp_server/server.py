@@ -14,7 +14,6 @@ from fastmcp import FastMCP
 from memvault.core.consolidation import ConsolidationConfig, consolidate
 from memvault.core.models import MemoryItem, MemoryQuery, MemoryType
 from memvault.core.retrieval import retrieve
-from memvault.core.scoring import reinforce
 from memvault.embeddings.local import LocalEmbedder
 from memvault.storage.base import EmbeddingStorageWrapper
 from memvault.storage.sqlite import SQLiteStorage
@@ -120,9 +119,7 @@ def search_memories(
             f"(similarity: {r.similarity:.3f}, relevance: {r.relevance:.3f})\n"
         )
 
-    for r in results:
-        reinforce(r.item)
-        _store.update(r.item)
+
 
 
     return "\n".join(lines)

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from memvault.core.models import MemoryItem, MemoryQuery
-from memvault.core.scoring import ScoringWeights, relevance_score
+from memvault.core.scoring import ScoringWeights, recency_score, relevance_score
 from memvault.embeddings.base import BaseEmbedder
 from memvault.storage.base import StorageBackend
 
@@ -106,6 +106,12 @@ def retrieve(
             weights=config.scoring_weights,
             now=now,
         )
+
+        # Apply query-level recency_bias: additional boost toward recently
+        # accessed/created memories, on top of the configured recency weight.
+        if query.recency_bias and query.recency_bias > 0:
+            rec = recency_score(item, now=now)
+            rel = rel + (query.recency_bias * rec)
 
         # ---------Step 3 part 4--------------
 

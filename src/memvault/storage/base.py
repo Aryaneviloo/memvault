@@ -90,7 +90,14 @@ class EmbeddingStorageWrapper:
         return self._backend.insert(item)
 
     def update(self, item: MemoryItem) -> MemoryItem:
-        item.embedding = self._embedder.embed(item.content)
+        # Skip re-embedding when content is unchanged (e.g. reinforce(), PATCH
+        # that only touches tags/metadata). Reuse the existing embedding to
+        # avoid wasting the embedding model on no-op updates.
+        existing = self._backend.get(item.id)
+        if existing is not None and existing.content == item.content and item.embedding is None:
+            item.embedding = existing.embedding
+        elif item.embedding is None:
+            item.embedding = self._embedder.embed(item.content)
         return self._backend.update(item)
 
     def get(self, item_id: str) -> MemoryItem | None:
