@@ -50,6 +50,7 @@ class StorageBackend(ABC):
         agent_id: str | None = None,
         namespace: str = "default",
         limit: int = 20,
+        offset: int = 0,
     ) -> list[MemoryItem]:
         """Return the most recently created/updated memories for a scope."""
         raise NotImplementedError
@@ -115,6 +116,7 @@ class EmbeddingStorageWrapper:
         agent_id: str | None = None,
         namespace: str = "default",
         limit: int = 20,
+        offset: int = 0,
     ) -> list[MemoryItem]:
 
         return self._backend.list_recent(
@@ -122,6 +124,7 @@ class EmbeddingStorageWrapper:
             agent_id=agent_id,
             namespace=namespace,
             limit=limit,
+            offset=offset,
         )
 
     def list_namespaces(

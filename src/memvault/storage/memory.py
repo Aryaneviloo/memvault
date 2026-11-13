@@ -57,6 +57,7 @@ class InMemoryStorage(StorageBackend):
         agent_id: str | None = None,
         namespace: str = "default",
         limit: int = 20,
+        offset: int = 0,
     ) -> list[MemoryItem]:
         results = [
             item
@@ -67,7 +68,7 @@ class InMemoryStorage(StorageBackend):
             and (agent_id is None or item.agent_id == agent_id)
         ]
         results.sort(key=lambda i: i.created_at, reverse=True)
-        return results[:limit]
+        return results[offset : offset + limit]
 
     def list_namespaces(self, 
                         user_id: str,

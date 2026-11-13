@@ -167,6 +167,7 @@ class SQLiteStorage(StorageBackend):
         agent_id: str | None = None,
         namespace: str = "default",
         limit: int = 20,
+        offset: int = 0,
     ) -> list[MemoryItem]:
 
         sql = """
@@ -182,8 +183,8 @@ class SQLiteStorage(StorageBackend):
             sql += "AND agent_id = ? "
             params.append(agent_id)
 
-        sql += " ORDER BY created_at DESC LIMIT ?"
-        params.append(limit)
+        sql += " ORDER BY created_at DESC LIMIT ? OFFSET ?"
+        params.extend([limit, offset])
 
         rows = self._conn.execute(sql, params).fetchall()
         return [self._deserialize(row) for row in rows]

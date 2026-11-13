@@ -193,6 +193,7 @@ class PostgresStorage(StorageBackend):
         agent_id: str | None = None,
         namespace: str = "default",
         limit: int = 20,
+        offset: int = 0,
     ) -> list[MemoryItem]:
         sql = """
             SELECT * FROM memories
@@ -206,8 +207,8 @@ class PostgresStorage(StorageBackend):
             sql += " AND agent_id = %s"
             params.append(agent_id)
 
-        sql += " ORDER BY created_at DESC LIMIT %s"
-        params.append(limit)
+        sql += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
+        params.extend([limit, offset])
 
         with self._conn.cursor() as cur:
             cur.execute(sql, params)
