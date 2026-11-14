@@ -268,17 +268,30 @@ class MemVault:
         Returns:
             Number of memories updated.
         """
-        memories = self._backend.list_recent(
-            user_id=user_id,
-            namespace=namespace,
-            limit=10000,
-        )
+        batch_size = 100
+        offset = 0
         count = 0
-        for item in memories:
-            apply_decay(item, decay_rate_per_day=decay_rate_per_day)
-            self._backend.update(item)
-            count += 1
+
+        while True:
+            memories = self._backend.list_recent(
+                user_id=user_id,
+                namespace=namespace,
+                limit=batch_size,
+                offset=offset,
+            )
+
+            if not memories:
+                break
+
+            for item in memories:
+                apply_decay(item, decay_rate_per_day=decay_rate_per_day)
+                self._backend.update(item)
+                count += 1
+
+            offset += len(memories)
+
         return count
+
 
     def ingest(
         self,
