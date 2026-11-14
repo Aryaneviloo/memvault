@@ -11,3 +11,4 @@ venv/
 htmlcov/
 dist/
 docker-compose.yml/
+ANALYSIS_AND_REVIEW.md
