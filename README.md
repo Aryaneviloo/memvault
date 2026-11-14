@@ -183,7 +183,7 @@ Full results: [docs/benchmark_results.md](https://github.com/Aryaneviloo/memvaul
 **Key result:** latency barely changes from 100 to 5,000 memories, because the
 candidate fetch is `O(limit)`, not `O(n)`.
 
-Reproduce: `python benchmarks/benchmark_suits.py`
+Reproduce: `python benchmarks/benchmark_suite.py`
 
 ## Memory types
 
