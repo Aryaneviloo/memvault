@@ -17,7 +17,7 @@ from memvault.ingestion.openai_extractor import OpenAIExtractor
 from memvault.ingestion.rule_based import RuleBasedExtractor
 from memvault.memvault import MemVault
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 __all__ = [
     "MemVault",
     "MemoryItem",

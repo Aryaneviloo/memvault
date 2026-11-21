@@ -2,6 +2,16 @@
 
 All notable changes to MemVault are documented here.
 
+### Added
+- Batched processing for `MemVault.decay()` to reduce memory usage (PR #11)
+- PGVECTOR support planning included in roadmap
+
+### Changed
+- `__init__.py`: version updated to `0.4.0`
+
+## [0.3.0] — 2026
+
+### Fixed
 ## [Unreleased]
 
 ### Fixed
