@@ -8,6 +8,7 @@ Run:
 """
 
 import os
+import sys
 
 from fastmcp import FastMCP
 
@@ -21,11 +22,24 @@ from memvault.storage.sqlite import SQLiteStorage
 #-----SETUP---------
 
 DB_PATH = os.environ.get("MEMVAULT_DB", "memvault.db")
-_backend = SQLiteStorage(DB_PATH)
-_embedder = LocalEmbedder()
-_store = EmbeddingStorageWrapper(backend=_backend, embedder=_embedder)
 
 mcp = FastMCP("MemVault")
+
+_backend: SQLiteStorage | None = None
+_embedder: LocalEmbedder | None = None
+_store: EmbeddingStorageWrapper | None = None
+
+
+def _init() -> None:
+    """Build backend, embedder and store on first use (safe to call repeatedly)."""
+    global _backend, _embedder, _store
+    if _store is not None:
+        return
+    embedder = LocalEmbedder()  # first, so a missing extra fails before the db is created
+    backend = SQLiteStorage(DB_PATH)
+    _embedder = embedder
+    _backend = backend
+    _store = EmbeddingStorageWrapper(backend=backend, embedder=embedder)
 
 #--------TOOLS--------------
 
@@ -53,6 +67,7 @@ def store_memory(
     Returns:
          Confirmation with the shared memory ID
     """
+    _init()
 
     try:
         mem_type = MemoryType(memory_type)
@@ -93,7 +108,7 @@ def search_memories(
     Returns:
         Ranked list of relevant memories with scores.
     """
-
+    _init()
     memory_query = MemoryQuery(
         text = query,
         user_id=user_id,
@@ -147,7 +162,7 @@ def list_recent_memories(
     Returns:
         Chronological list of recent memories
     """
-
+    _init()
     memories = _backend.list_recent(
         user_id=user_id,
         agent_id=agent_id,
@@ -186,6 +201,7 @@ def consolidate_memories(
     Returns:
         SUmmary of all the consolidated memories
     """
+    _init()
 
     config = ConsolidationConfig(similarity_threshold=similarity_threshold)
     result = consolidate(
@@ -208,6 +224,7 @@ def delete_memory(
     memory_id: str,
     hard: bool = False,
 ) -> str:
+    
 
     """
     Delete a memory by ID.
@@ -219,6 +236,7 @@ def delete_memory(
     Returns:
         Confirmation of deletion.
     """
+    _init()
     deleted = _store.delete(memory_id, hard=hard)
     if deleted:
         action = "permanently deleted" if hard else "soft-deleted"
@@ -247,6 +265,7 @@ def ingest_conversation(
     Returns:
         Summary of what was extracted and stored.
     """
+    _init()
 
     from memvault import MemVault
 
@@ -279,7 +298,13 @@ def ingest_conversation(
 #--------Entry Point---------
 
 def main():
+    try:
+        _init()
+    except ImportError as e:
+        print(f"✗ {e}", file=sys.stderr)
+        raise SystemExit(1) from None
     mcp.run()
+
 
 if __name__ == "__main__":
     main()

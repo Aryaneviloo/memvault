@@ -29,7 +29,7 @@ class MemoryItem(BaseModel):
     user_id: str
     namespace: str = "default"
     type: MemoryType
-    content: str
+    content: str = Field(min_length=1)
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
     last_accessed_at: datetime | None = None

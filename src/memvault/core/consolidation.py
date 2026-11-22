@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
@@ -86,6 +87,16 @@ def _make_summary(items: list[MemoryItem]) -> str:
     return f"[Consolidated] {joined}"
 
 
+def _centroid(items: list[MemoryItem]) -> list[float]:
+    """
+    Average the cluster's vectors, then rescale lenght to 1"""
+    vectors = [i.embedding for i in items]
+    avg = [sum(col)/len(vectors) for col in zip(*vectors, strict = True)]
+    norm = math.sqrt(sum(x * x for x in avg))
+    if norm == 0:
+        return avg
+    return[x/norm for x in avg]
+
 def consolidate(
     user_id: str,
     backend: StorageBackend,
@@ -142,6 +153,7 @@ def consolidate(
             type=MemoryType.CONSOLIDATED,
             content=summary,
             summary=summary,
+            embedding = _centroid(cluster),
             importance=min(max_importance * 1.1, 1.0),
             confidence=min(sum(i.confidence for i in cluster) / len(cluster), 1.0),
             tags=list({tag for item in cluster for tag in item.tags}),

@@ -1,6 +1,7 @@
 import typer
 from rich import print as rprint
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from memvault.core.consolidation import ConsolidationConfig, consolidate
@@ -18,12 +19,24 @@ app = typer.Typer(
 
 console = Console()
 
+def _get_embedder() -> LocalEmbedder:
+    """Build the embedder, exiting cleanly if the [local] extra is missing."""
+    try:
+        return LocalEmbedder()
+    except ImportError as e:
+        rprint(f"[red]✗[/red] {escape(str(e))}")
+        raise typer.Exit(code=1) from None
+
+def _get_backend(db_path: str = "memories.db") -> SQLiteStorage:
+    """Storage only. No embedder needed."""
+    return SQLiteStorage(db_path)
+
+
 
 def _get_store(db_path: str = "memories.db") -> EmbeddingStorageWrapper:
-    """Build the storage stack — SQLite + embedder."""
-    backend = SQLiteStorage(db_path)
-    embedder = LocalEmbedder()
-    return EmbeddingStorageWrapper(backend=backend, embedder=embedder)
+    """Full stack: embedder + SQLite."""
+    embedder = _get_embedder()
+    return EmbeddingStorageWrapper(backend=_get_backend(db_path), embedder=embedder)
 
 
 @app.command()
@@ -69,8 +82,8 @@ def recall(
 ) -> None:
     """Search memories semantically."""
 
-    store = _get_store(db_path)
-    embedder = LocalEmbedder()
+    embedder = _get_embedder()
+    backend = _get_backend(db_path)
 
     memory_query = MemoryQuery(
         text=query,
@@ -80,11 +93,9 @@ def recall(
         top_k=top_k,
     )
 
-    results = retrieve(
-        query=memory_query,
-        backend=store._backend,
-        embedder=embedder,
-    )
+    results = retrieve(query=memory_query, 
+                       backend=backend, 
+                       embedder=embedder)
 
     if not results:
         rprint("[yellow]No memories found.[/yellow]")
@@ -117,7 +128,7 @@ def forget(
 ) -> None:
     """Delete a memory by ID."""
 
-    store = _get_store(db_path)
+    backend = _get_backend(db_path)
 
     if hard:
         confirmed = typer.confirm(
@@ -127,7 +138,7 @@ def forget(
             rprint("[yellow]Aborted.[/yellow]")
             raise typer.Exit()
 
-    deleted = store.delete(memory_id, hard=hard)
+    deleted = backend.delete(memory_id, hard=hard)
     if deleted:
         action = "permanently deleted" if hard else "soft-deleted"
         rprint(f"[green]✓[/green] Memory {action}: [bold]{memory_id}[/bold]")
@@ -145,13 +156,13 @@ def consolidate_cmd(
 ) -> None:
     """Merge near-duplicate memories for a user."""
 
-    store = _get_store(db_path)
+    backend = _get_backend(db_path)
     config = ConsolidationConfig(similarity_threshold=threshold)
 
     with console.status("Running consolidation..."):
         result = consolidate(
             user_id=user_id,
-            backend=store._backend,
+            backend=backend,
             namespace=namespace,
             config=config,
         )
@@ -171,12 +182,14 @@ def doctor(
     """Check the health of the memvault installation."""
 
     console.print("[bold]MemVault Doctor[/bold]\n")
+    ok = True
 
     try:
-        _get_store(db_path)
+        SQLiteStorage(db_path)
         rprint("[green]✓[/green] Storage backend: SQLite")
     except Exception as e:
-        rprint(f"[red]✗[/red] Storage backend failed: {e}")
+        ok = False
+        rprint(f"[red]✗[/red] Storage backend failed: {escape(str(e))}")
 
     try:
         embedder = LocalEmbedder()
@@ -184,10 +197,14 @@ def doctor(
         assert len(vec) == 384
         rprint("[green]✓[/green] Embedding model: BGE-small (384 dims)")
     except Exception as e:
-        rprint(f"[red]✗[/red] Embedding model failed: {e}")
+        ok = False
+        rprint(f"[red]✗[/red] Embedding model failed: {escape(str(e))}")
 
-    rprint("\n[bold green]All systems operational.[/bold green]")
-
+    if ok:
+        rprint("\n[bold green]All systems operational.[/bold green]")
+    else:
+        rprint("\n[bold red]Problems found.[/bold red]")
+        raise typer.Exit(code=1)
 
 def main():
     app()

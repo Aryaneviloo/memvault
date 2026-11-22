@@ -1,11 +1,9 @@
 # was getting hf token warning without this
 import os
 
-from sentence_transformers import SentenceTransformer
-
 from memvault.embeddings.base import BaseEmbedder
 
-os.environ["HF_HUB_DISABLE_IMPLICIT_TOKEN"] = "1"
+os.environ.setdefault("HF_HUB_DISABLE_IMPLICIT_TOKEN", "1")
 
 
 # this prefix yiels better results with the bge model
@@ -20,14 +18,21 @@ class LocalEmbedder(BaseEmbedder):
     RUNS ON CPU by default
 
     Install the optional dependency
-    pip install memvault[local]
+    pip install eviloomemvault[local]
 
     """
-
+    
     MODEL_NAME = "BAAI/bge-small-en-v1.5"
-
     def __init__(self, device: str = "cpu") -> None:
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as e:
+            raise ImportError(
+                "Local embeddings need sentence-transformers. "
+                "Install it with: pip install 'eviloomemvault[local]'"
+           ) from e  
         self._model = SentenceTransformer(self.MODEL_NAME, device=device)
+
 
     def embed(self, text: str) -> list[float]:
         """Embed content text for storage"""
