@@ -2,6 +2,26 @@
 
 All notable changes to MemVault are documented here.
 
+## [Unreleased]
+
+## [0.4.1] — 2026-11-22
+
+### Fixed
+- `embeddings/local.py`: `sentence_transformers` is now imported lazily inside `LocalEmbedder.__init__`. It was imported at module level, so `memvault --help` crashed on any install without the `[local]` extra. A missing extra now raises a clear `ImportError` with the exact install command (`pip install 'eviloomemvault[local]'`)
+- `cli/main.py`: a missing `[local]` extra prints one clean error line and exits with code 1 instead of a traceback, and no `memories.db` is created in that case
+- `cli/main.py`: `forget` and `consolidate` no longer load the embedding model, so they work without the `[local]` extra
+- `cli/main.py`: `recall` loads the embedding model once instead of twice
+- `cli/main.py`: `doctor` checks storage and the embedder independently, and only reports "All systems operational" when every check passes (it previously printed it unconditionally and blamed storage for embedder failures). It exits with code 1 on failure
+- `core/consolidation.py`: consolidated memories now store an embedding (the normalized average of the source vectors). They were previously saved without one, so `recall` could never find them
+- `core/models.py`: `MemoryItem.content` now rejects empty strings
+- `mcp_server/server.py`: the storage backend and embedder are built on first use instead of at import time. Importing the module is now safe, and `memvault-mcp` prints a clean error when the `[local]` extra is missing
+- Docs: install hints now use the correct package name, `eviloomemvault[local]`
+
+### Changed
+- Version bumped to `0.4.1`
+
+## [0.4.0] — 2026
+
 ### Added
 - Batched processing for `MemVault.decay()` to reduce memory usage (PR #11)
 - PGVECTOR support planning included in roadmap
@@ -9,10 +29,10 @@ All notable changes to MemVault are documented here.
 ### Changed
 - `__init__.py`: version updated to `0.4.0`
 
-## [0.3.0] — 2026
+### Known issues
+- The CLI and MCP server crash on startup without the `[local]` extra (fixed in 0.4.1)
 
-### Fixed
-## [Unreleased]
+## [0.3.0] — 2026
 
 ### Fixed
 - `api/app.py`: `app = create_app()` was missing `()`, causing `uvicorn` to receive a function object instead of a FastAPI instance (REST API would not start)
